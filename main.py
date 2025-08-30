@@ -7,11 +7,10 @@ from starlette.middleware.sessions import SessionMiddleware
 import sqlite3
 import hashlib
 import uvicorn
-from datetime import datetime
 
 app = FastAPI()
 
-# ✅ Add session middleware (secret key is important!)
+#  Add session middleware (secret key is important!)
 app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
 
 # Static (CSS/JS/Images)
@@ -20,11 +19,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Templates (HTML files)
 templates = Jinja2Templates(directory="templates")  
 
-# ✅ Database connection
+#  Database connection for users
 conn = sqlite3.connect("users.db", check_same_thread=False)
 cursor = conn.cursor()
-
-# ✅ Create table (if not exists)
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,16 +35,24 @@ CREATE TABLE IF NOT EXISTS users (
 """)
 conn.commit()
 
-# ✅ Signup page
+#  Signup page
 @app.get("/", response_class=HTMLResponse)
 async def index_page(request: Request): 
     return templates.TemplateResponse("index.html", {"request": request})
 
-# ✅ Login page
+#  Login page
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
-    # ✅ post page
+
+
+
+
+
+
+
+
+#  Post page
 @app.get("/post", response_class=HTMLResponse)
 async def post_page(request: Request):
     return templates.TemplateResponse("post.html", {"request": request})
@@ -55,7 +60,9 @@ async def post_page(request: Request):
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
-@app.post("/")
+
+#  Login function
+@app.post("/logfunc")
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, hashed_password))
@@ -65,12 +72,8 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("index.html", {"request": request, "error": "Invalid credentials"})    
 
-    # for submitting post
-@app.post("/submit-post",response_class=HTMLResponse) 
-async def submit_post(request: Request, title: str = Form(...), content: str = Form(...),author: str = Form(...)):
-    return templates.TemplateResponse("viewpost.html", {"request": request, "message": "Post submitted successfully!"})
 
-# database setup
+# ---------------- POSTS DATABASE ----------------
 def init_db():
     conn = sqlite3.connect("posts.db")
     cursor = conn.cursor()
@@ -87,13 +90,27 @@ def init_db():
 
 init_db()
 
-
-# # ✅ Logout
-# @app.get("/logout")
-# async def logout(request: Request):
-#     request.session.clear()  # remove session
-#     return RedirectResponse(url="/login", status_code=303)
-
+#  for submitting post
+@app.post("/submit-post",response_class=HTMLResponse) 
+async def submit_post(request: Request, title: str = Form(...), content: str = Form(...),author: str = Form(...)):
+    conn = sqlite3.connect("posts.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO posts (title, content, author) VALUES (?, ?, ?)", (title, content, author))
+    conn.commit()
+    conn.close()
+    return RedirectResponse(url="/viewpost", status_code=303)
+    
+    
+#  fetch and display posts
+@app.get("/viewpost", response_class=HTMLResponse)
+async def view_posts(request: Request):
+    conn = sqlite3.connect("posts.db")
+    conn.row_factory = sqlite3.Row  # To access columns by name
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM posts")
+    posts = cursor.fetchall()
+    conn.close()
+    return templates.TemplateResponse("viewpost.html", {"request": request, "posts": posts})
 
 
 # Run the app
