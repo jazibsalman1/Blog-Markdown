@@ -1,33 +1,366 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Posts</title>
-        <link rel="stylesheet" href="/static/navbar.css">
+    <link rel="stylesheet" href="/static/navbar.css">
     <link rel="stylesheet" href="/static/style.css">
     <style>
+        /* css done by CLAUDE AI */
+        /* ===========================================
+           GLOBAL STYLES
+           =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===========================================
+           MAIN CONTENT CONTAINER
+           =========================================== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex: 1;
+        }
+
+        /* ===========================================
+           PAGE TITLE
+           =========================================== */
+        .page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .page-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #1abc9c, #16a085);
+            border-radius: 2px;
+        }
+
+        /* ===========================================
+           POSTS GRID
+           =========================================== */
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* ===========================================
+           POST CARD STYLING
+           =========================================== */
+        .post {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .post::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #1abc9c, #3498db, #9b59b6);
+            background-size: 200% 100%;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .post:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+        }
+
+        .post h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+            position: relative;
+        }
+
+        .post-content {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .author {
+            color: #1abc9c;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .author::before {
+            content: '✍️';
+            font-size: 1rem;
+        }
+
+        .post-date {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* Read More Button */
+        .read-more {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .read-more:hover {
+            background: linear-gradient(135deg, #16a085, #138a75);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);
+        }
+
+        /* ===========================================
+           EMPTY STATE
+           =========================================== */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .empty-state h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(135deg, #2980b9, #21618c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        /* ===========================================
+           FOOTER STYLES
+           =========================================== */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: auto;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer p {
+            color: #bdc3c7;
+            font-size: 0.9rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: #1abc9c;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #16a085;
+            text-decoration: underline;
+        }
+
+        /* ===========================================
+           RESPONSIVE DESIGN
+           =========================================== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title h1 {
+                font-size: 2rem;
+            }
+
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .post {
+                padding: 1.5rem;
+            }
+
+            .post h2 {
+                font-size: 1.3rem;
+            }
+
+            .post-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .footer {
+                padding: 1.25rem 0;
+            }
+
+            .footer-content {
+                padding: 0 1rem;
+            }
+
+            .footer p {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title h1 {
+                font-size: 1.75rem;
+            }
+
+            .post {
+                padding: 1.25rem;
+            }
+
+            .empty-state {
+                padding: 3rem 1.5rem;
+            }
+
+            .empty-state-icon {
+                font-size: 3rem;
+            }
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         .post {
-            background: #fff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
         }
-        .post h2 {
-            margin: 0;
-            color: #333;
-        }
-        .post p {
-            margin: 10px 0;
-        }
-        .author {
-            font-size: 14px;
-            color: gray;
+
+        .post:nth-child(1) { animation-delay: 0.1s; }
+        .post:nth-child(2) { animation-delay: 0.2s; }
+        .post:nth-child(3) { animation-delay: 0.3s; }
+        .post:nth-child(4) { animation-delay: 0.4s; }
+        .post:nth-child(5) { animation-delay: 0.5s; }
+        .post:nth-child(6) { animation-delay: 0.6s; }
+
+        .empty-state {
+            animation: fadeInUp 0.8s ease-out;
         }
     </style>
 </head>
 <body>
-        <nav class="navbar">
+    <nav class="navbar">
         <a href="/">
             <div class="logo">Blog Markdown</div>
         </a>
@@ -38,28 +371,67 @@
         </ul>
         <div class="menu-icon" onclick="toggleMenu()">☰</div>
     </nav>
-    <br>
-    
-    <h1>All Posts</h1>
 
-    {% if posts %}
-        {% for post in posts %}
-            <div class="post">
-                <h2>{{ post.title }}</h2>
-                <p>{{ post.content }}</p>
-                <p class="author">Author: {{ post.author }}</p>
+    <div class="container">
+        <div class="page-title">
+            <h1>All Posts</h1>
+        </div>
+
+        {% if posts %}
+            <div class="posts-grid">
+                {% for post in posts %}
+                    <div class="post">
+                        <h2>{{ post.title }}</h2>
+                        <div class="post-content">{{ post.content }}</div>
+                        <div class="post-meta">
+                            <span class="author">{{ post.author }}</span>
+                            {% if post.created_at %}
+                                <span class="post-date">{{ post.created_at }}</span>
+                            {% endif %}
+                        </div>
+                        <button class="read-more" onclick="expandPost(this)">Read More</button>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-    {% else %}
-        <p>No posts yet. Be the first to publish!</p>
-    {% endif %}
-        <br>
-    
-    <!-- Copyright Footer -->
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <h2>No Posts Yet</h2>
+                <p>Be the first to share your thoughts and publish a post!</p>
+                <a href="/post" class="cta-button">Write Your First Post</a>
+            </div>
+        {% endif %}
+    </div>
+
     <footer class="footer">
         <div class="footer-content">
             <p>&copy; 2025 Jazib Services INC. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        function expandPost(button) {
+            const postContent = button.parentElement.querySelector('.post-content');
+            const isExpanded = postContent.style.webkitLineClamp === 'none';
+            
+            if (isExpanded) {
+                postContent.style.webkitLineClamp = '4';
+                postContent.style.overflow = 'hidden';
+                button.textContent = 'Read More';
+            } else {
+                postContent.style.webkitLineClamp = 'none';
+                postContent.style.overflow = 'visible';
+                button.textContent = 'Read Less';
+            }
+        }
+
+        // Add smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
 </body>
 </html>
