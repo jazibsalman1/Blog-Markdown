@@ -38,12 +38,12 @@ conn.commit()
 #  Signup page
 @app.get("/", response_class=HTMLResponse)
 async def index_page(request: Request): 
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(requests, "index.html", {"request": request})
 
 #  Login page
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(requests, "login.html", {"request": request})
 
 
 
@@ -55,11 +55,11 @@ async def login_page(request: Request):
 #  Post page
 @app.get("/post", response_class=HTMLResponse)
 async def post_page(request: Request):
-    return templates.TemplateResponse("post.html", {"request": request})
+    return templates.TemplateResponse(requests, "post.html", {"request": request})
 
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page(request: Request):
-    return templates.TemplateResponse("signup.html", {"request": request})
+    return templates.TemplateResponse(requests, "signup.html", {"request": request})
 
 #  Login function
 @app.post("/logfunc")
@@ -70,7 +70,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     if user:
         request.session['user'] = user[1]  # Store first name in session
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("index.html", {"request": request, "error": "Invalid credentials"})    
+    return templates.TemplateResponse(requests, "index.html", {"request": request, "error": "Invalid credentials"})    
 
 
 # ---------------- POSTS DATABASE ----------------
@@ -110,7 +110,7 @@ async def view_posts(request: Request):
     cursor.execute("SELECT * FROM posts")
     posts = cursor.fetchall()
     conn.close()
-    return templates.TemplateResponse("viewpost.html", {"request": request, "posts": posts})
+    return templates.TemplateResponse(requests, "viewpost.html", {"request": request, "posts": posts})
 
 
 # Run the app
