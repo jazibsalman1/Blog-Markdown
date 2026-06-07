@@ -7,6 +7,8 @@ from starlette.middleware.sessions import SessionMiddleware
 import sqlite3
 import hashlib
 import uvicorn
+import itsdangerous
+import requests
 
 app = FastAPI()
 
